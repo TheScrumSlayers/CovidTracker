@@ -20,7 +20,7 @@ namespace CovidTracker.Code.IO
         private static JsonSerializerOptions jsonOptions;
         private static StorageCache storageCache;
         private static StorageThread storageThread;
-        private static object storageLock;
+        private static object storageLock = new object();
 
         public static void Initialize()
         {
