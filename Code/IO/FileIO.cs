@@ -75,7 +75,7 @@ namespace CovidTracker.Code.IO
         /// <returns>IOReturn object represeting the status of the operation.</returns>
         public static IOReturn WriteJson<T>(string path, T obj, bool overwrite = false)
         {
-            return Write(path, JsonSerializer.Serialize<T>(obj, jsonOptions), overwrite);
+            return Write(path, JsonSerializer.Serialize(obj, jsonOptions), overwrite);
         }
 
         /// <summary>

@@ -43,7 +43,6 @@ namespace CovidTracker.Code.IO
         private void Loop()
         {
             while (threadState != StorageThreadState.Shutdown) {
-
                 currentTask = CurrentTask.None;
                 threadState = StorageThreadState.Running;
 
