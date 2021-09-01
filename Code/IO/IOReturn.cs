@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 
 namespace CovidTracker.Code.IO
 {
+    /// <summary>
+    /// Return value of an IO operation.
+    /// </summary>
     public class IOReturn
     {
         public IOReturnStatus Status { get; }
@@ -17,6 +20,10 @@ namespace CovidTracker.Code.IO
         }
     }
 
+    /// <summary>
+    /// Return value of an IO operation, containing a return value.
+    /// </summary>
+    /// <typeparam name="T">Return type.</typeparam>
     public class IOReturn<T> : IOReturn
     {
         public T Value { get; }

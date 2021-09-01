@@ -65,11 +65,26 @@ namespace CovidTracker.Code.IO
             }
         }
 
+        /// <summary>
+        /// Writes a serialized json string to a path.
+        /// </summary>
+        /// <typeparam name="T">Type.</typeparam>
+        /// <param name="path">Path of the file.</param>
+        /// <param name="obj">Object to serialize.</param>
+        /// <param name="overwrite">Overwrite or append contents of the file.</param>
+        /// <returns>IOReturn object represeting the status of the operation.</returns>
         public static IOReturn WriteJson<T>(string path, T obj, bool overwrite = false)
         {
             return Write(path, JsonSerializer.Serialize<T>(obj, jsonOptions), overwrite);
         }
 
+        /// <summary>
+        /// Writes a string to a path.
+        /// </summary>
+        /// <param name="path">Path of the file.</param>
+        /// <param name="content">String to write.</param>
+        /// <param name="overwrite">Overwrite or append contents of the file.</param>
+        /// <returns>IOReturn object represeting the status of the operation.</returns>
         public static IOReturn Write(string path, string content, bool overwrite = false)
         {
             FileStream fileStream = null;
@@ -104,6 +119,11 @@ namespace CovidTracker.Code.IO
             return except != null ? new IOReturn(IOReturnStatus.Fail, except) : new IOReturn(IOReturnStatus.Success);
         }
 
+        /// <summary>
+        /// Reads a string from a file at a given path.
+        /// </summary>
+        /// <param name="path">Path to file.</param>
+        /// <returns>IOReturn object representing the status of the operation. Contains the string if successful.</returns>
         public static IOReturn<string> Read(string path)
         {
             FileStream fileStream = null;
@@ -131,6 +151,12 @@ namespace CovidTracker.Code.IO
             return except != null ? new IOReturn<string>(IOReturnStatus.Fail, str, except) : new IOReturn<string>(IOReturnStatus.Success, str);
         }
 
+        /// <summary>
+        /// Reads and deserializes a json file at a given path.
+        /// </summary>
+        /// <typeparam name="T">Type to deserialize as.</typeparam>
+        /// <param name="path">Path to the json file.</param>
+        /// <returns>IOReturn object representing the status of the operation. Contains the deserialized object if successful.</returns>
         public static IOReturn<T> ReadJson<T>(string path)
         {
             FileStream fileStream = null;
@@ -160,6 +186,9 @@ namespace CovidTracker.Code.IO
         }
     }
 
+    /// <summary>
+    /// Contains data which is stored between sessions.
+    /// </summary>
     public class StorageCache
     {
         public uint CurrentEntries { get; set; }
