@@ -15,7 +15,7 @@ namespace CovidTracker.Code
     {
         public static async Task<T> GetJsonAsync<T>(string requestUri) where T : class
         {
-            T obj;
+            T obj = null;
             using HttpClient client = new HttpClient();
             using HttpResponseMessage content = await client.GetAsync(requestUri);
             try {
@@ -23,10 +23,6 @@ namespace CovidTracker.Code
                 obj = JsonSerializer.Deserialize<T>(json);
             } catch (Exception e) {
                 // TODO: Logging.
-                content?.Dispose();
-                client?.Dispose();
-
-                return null;
             } finally {
                 content?.Dispose();
                 client?.Dispose();
@@ -37,7 +33,7 @@ namespace CovidTracker.Code
 
         public static async Task<HttpResponseMessage> PostJsonAsync<T>(string requestUri, T content)
         {
-            HttpResponseMessage response;
+            HttpResponseMessage response = null;
             using HttpClient client = new HttpClient();
             try {
                 string jsonString = JsonSerializer.Serialize(content);
@@ -45,9 +41,6 @@ namespace CovidTracker.Code
                 response = await client.PostAsync(requestUri, stringContent);
             } catch (Exception e) {
                 // TODO: Logging.
-                client.Dispose();
-
-                return null;
             } finally {
                 client.Dispose();
             }
@@ -57,7 +50,7 @@ namespace CovidTracker.Code
 
         public static async Task<HttpResponseMessage> PutJsonAsync<T>(string requestUri, T content)
         {
-            HttpResponseMessage response;
+            HttpResponseMessage response = null;
             using HttpClient client = new HttpClient();
             try {
                 string jsonString = JsonSerializer.Serialize(content);
@@ -65,9 +58,8 @@ namespace CovidTracker.Code
                 response = await client.PutAsync(requestUri, stringContent);
             } catch (Exception e) {
                 // TODO: Logging.
+            } finally {
                 client.Dispose();
-
-                return null;
             }
 
             return response;
