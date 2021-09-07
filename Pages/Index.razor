@@ -12,14 +12,12 @@
 <input @bind="@Text" type="text" id="name" name="name">
 <button @onclick="@Post">Press</button>
 
-@code {
+<h1>Welcome to the COVID SAFE System !</h1>
 
-    [Parameter]
-    public string Text { get; set; } = "Bob";
-
-    public async void Post()
-    {
-        await AppClient.PostJsonAsync(@Navigator.BaseUri + "api/Login", Text);
-    }
-
-}
+<div class="input-group input-group-lg">
+  <div class="input-group-prepend">
+    <span class="input-group-text" id="inputGroup-sizing-lg">please input your unique identification here</span>
+  </div>
+  <input type="text" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm">
+</div>
+<button type="button" class="btn btn-primary">Submit</button>
