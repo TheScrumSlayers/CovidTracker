@@ -57,7 +57,7 @@
         Text = "";
         LoadState = PageState.Loading;
         StateHasChanged();
-        HttpResponseMessage msg = await AppClient.PostJsonAsync(@Navigator.BaseUri + "api/Login", Text);
+        HttpResponseMessage msg = await AppClient.PostJsonAsync(@Navigator.BaseUri + "api/Login", ID);
         Text = await msg.Content.ReadAsStringAsync();
         LoadState = PageState.Loaded;
         CurrentPage = Page.Summary;
