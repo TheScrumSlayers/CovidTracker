@@ -2,25 +2,78 @@
 @using System.Net
 @using CovidTracker.Code
 @using Microsoft.AspNetCore.Identity
-
 @inject NavigationManager Navigator
 
 <h1>Welcome to the COVID SAFE System !</h1>
 
-<div class="input-group input-group-lg">
-  <div class="input-group-prepend">
-    <span class="input-group-text" id="inputGroup-sizing-lg">please input your unique identification here</span>
-  </div>
-  <input @bind="@Text" type="text" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm">
-</div>
-<button type="button" class="btn btn-primary" @onclick="@Post">Submit</button>
+<!-- If the page is in a loading state, show loading message. Otherwise, render the relevant page. -->
+@if (LoadState == PageState.Loading) {
+    <p>...LOADING...</p>
+} else {
+    switch (CurrentPage) {
+        case Page.Login:
+            <!-- Render login page. -->
+            <div class="input-group input-group-lg">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="inputGroup-sizing-lg">please input your unique identification here</span>
+                </div>
+                <input @bind="@Text" type="text" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm">
+            </div>
+            <button type="button" class="btn btn-primary" @onclick="@Post">Submit</button>
+            break;
+        case Page.Summary:
+            <!-- Render the example summary page. -->
+            <p>
+                *THIS IS EXAMPLE OUTPUT ONLY*<br /><br />
+                Name: @Text<br />
+                Location: Adelaide<br />
+                Phone number: ...<br />
+            </p>
+            <button type="button" class="btn btn-primary" @onclick="@HideSummary">Back</button>
+            break;
+        default:
+            <!-- Render error message if we are at an unrecognized page. This should not happen. -->
+            <p>Error!</p>
+            break;
+    }
+}
 
 @code {
     [Parameter]
     public string Text { get; set; } = "";
 
+    [Parameter]
+    public PageState LoadState { get; set; } = PageState.Loaded;
+
+    [Parameter]
+    public Page CurrentPage { get; set; } = Page.Login;
+
     public async void Post()
     {
+        LoadState = PageState.Loading;
+        StateHasChanged();
         await AppClient.PostJsonAsync(@Navigator.BaseUri + "api/Login", Text);
+        LoadState = PageState.Loaded;
+        CurrentPage = Page.Summary;
+        StateHasChanged();
+    }
+
+    public void HideSummary()
+    {
+        LoadState = PageState.Loaded;
+        CurrentPage = Page.Login;
+        StateHasChanged();
+    }
+
+    public enum PageState
+    {
+        Loaded,
+        Loading
+    }
+
+    public enum Page
+    {
+        Login,
+        Summary
     }
 }
