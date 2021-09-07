@@ -1,5 +1,25 @@
 ﻿@page "/"
+@using System.Net
+@using CovidTracker.Code
+@using Microsoft.AspNetCore.Identity
 
-<h1>Hello, world!</h1>
+@inject NavigationManager Navigator
 
-Welcome to your new app.
+<!-- This is a simple test page which demonstrates user input being passed to the server. -->
+
+<h1>Xtreme covid destroyer 9000 (WIP)</h1>
+<h2>Enter your info below!</h2>
+<input @bind="@Text" type="text" id="name" name="name">
+<button @onclick="@Post">Press</button>
+
+@code {
+
+    [Parameter]
+    public string Text { get; set; } = "Bob";
+
+    public async void Post()
+    {
+        await AppClient.PostJsonAsync(@Navigator.BaseUri + "api/Login", Text);
+    }
+
+}
