@@ -17,7 +17,7 @@
                 <div class="input-group-prepend">
                     <span class="input-group-text" id="inputGroup-sizing-lg">please input your unique identification here</span>
                 </div>
-                <input @bind="@Text" type="text" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm">
+                <input @bind="@ID" type="text" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm">
             </div>
             <button type="button" class="btn btn-primary" @onclick="@Post">Submit</button>
             break;
@@ -25,9 +25,10 @@
             <!-- Render the example summary page. -->
             <p>
                 *THIS IS EXAMPLE OUTPUT ONLY*<br /><br />
-                Name: @Text<br />
+                ID: @ID<br />
                 Location: Adelaide<br />
-                Phone number: ...<br />
+                Phone number: ...<br /><br />
+                A server-side log was saved to "@Text".
             </p>
             <button type="button" class="btn btn-primary" @onclick="@HideSummary">Back</button>
             break;
@@ -43,6 +44,9 @@
     public string Text { get; set; } = "";
 
     [Parameter]
+    public string ID { get; set; } = "";
+
+    [Parameter]
     public PageState LoadState { get; set; } = PageState.Loaded;
 
     [Parameter]
@@ -50,9 +54,11 @@
 
     public async void Post()
     {
+        Text = "";
         LoadState = PageState.Loading;
         StateHasChanged();
-        await AppClient.PostJsonAsync(@Navigator.BaseUri + "api/Login", Text);
+        HttpResponseMessage msg = await AppClient.PostJsonAsync(@Navigator.BaseUri + "api/Login", Text);
+        Text = await msg.Content.ReadAsStringAsync();
         LoadState = PageState.Loaded;
         CurrentPage = Page.Summary;
         StateHasChanged();
@@ -60,6 +66,7 @@
 
     public void HideSummary()
     {
+        ID = "";
         LoadState = PageState.Loaded;
         CurrentPage = Page.Login;
         StateHasChanged();

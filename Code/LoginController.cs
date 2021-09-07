@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -19,9 +20,10 @@ namespace CovidTracker.Code
 
             // NOTE: Test code. Not final!
             // As a test, log the data to a file.
-            FileIO.Write(FileIO.StorageDirectory + "\\" + rand.Next(), $"Recieved post from: {data}");
+            string file = FileIO.StorageDirectory + Path.DirectorySeparatorChar + rand.Next() + ".txt";
+            FileIO.Write(file, $"Recieved POST from: {data}\n");
 
-            return null;
+            return file;
         }
     }
 }
