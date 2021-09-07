@@ -5,19 +5,22 @@
 
 @inject NavigationManager Navigator
 
-<!-- This is a simple test page which demonstrates user input being passed to the server. -->
-
-<h1>Xtreme covid destroyer 9000 (WIP)</h1>
-<h2>Enter your info below!</h2>
-<input @bind="@Text" type="text" id="name" name="name">
-<button @onclick="@Post">Press</button>
-
 <h1>Welcome to the COVID SAFE System !</h1>
 
 <div class="input-group input-group-lg">
   <div class="input-group-prepend">
     <span class="input-group-text" id="inputGroup-sizing-lg">please input your unique identification here</span>
   </div>
-  <input type="text" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm">
+  <input @bind="@Text" type="text" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm">
 </div>
-<button type="button" class="btn btn-primary">Submit</button>
+<button type="button" class="btn btn-primary" @onclick="@Post">Submit</button>
+
+@code {
+    [Parameter]
+    public string Text { get; set; } = "";
+
+    public async void Post()
+    {
+        await AppClient.PostJsonAsync(@Navigator.BaseUri + "api/Login", Text);
+    }
+}
