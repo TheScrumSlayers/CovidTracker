@@ -1,10 +1,12 @@
-﻿@page "/"
+@page "/"
 @using System.Net
 @using CovidTracker.Code
 @using Microsoft.AspNetCore.Identity
 @inject NavigationManager Navigator
 
-<h1>Welcome to the COVID SAFE System !</h1>
+<div class="text-center py-2">
+    <h1>Welcome to the COVID SAFE System !</h1>
+</div>
 
 <!-- If the page is in a loading state, show loading message. Otherwise, render the relevant page. -->
 @if (LoadState == PageState.Loading) {
@@ -13,13 +15,13 @@
     switch (CurrentPage) {
         case Page.Login:
             <!-- Render login page. -->
-            <div class="input-group input-group-lg">
-                <div class="input-group-prepend">
-                    <span class="input-group-text" id="inputGroup-sizing-lg">please input your unique identification here</span>
-                </div>
-                <input @bind="@ID" type="text" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm">
+            <div class="my-5 text-center">
+                <label for="exampleFormControlInput1" class="form-label" style="font-weight: 400; color: #232222;font-size: 1.8rem;">
+                    please input your unique identification here
+                </label>
+                <input @bind="@ID" type="text" class="form-control form-control-lg" id="exampleFormControlInput1">
             </div>
-            <button type="button" class="btn btn-primary" @onclick="@Post">Submit</button>
+            <button type="button" class="btn btn-primary btn-block btn-lg" @onclick="@Post">Submit</button>
             break;
         case Page.Summary:
             <!-- Render the example summary page. -->
