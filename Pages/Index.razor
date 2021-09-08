@@ -20,11 +20,11 @@
                 <input @bind="@ID" type="text" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm">
             </div>
             <button type="button" class="btn btn-primary" @onclick="@Post">Submit</button>
-@if (@Post != " ") {<div class="alert alert-success" role="alert">
-    Congratulation! you complete logging.</div> } 
-                                                else { break };
+            break;
         case Page.Summary:
             <!-- Render the example summary page. -->
+            <div class="alert alert-success" role="alert">
+                Congratulation! you complete logging.</div>
             <p>
                 *THIS IS EXAMPLE OUTPUT ONLY*<br /><br />
                 ID: @ID<br />
