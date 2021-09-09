@@ -44,7 +44,8 @@ namespace CovidTracker.Code.IO
             ReadCacheFile();
 
             // Create maintenance thread.
-            storageThread = new StorageThread(storageLock);
+            // TODO: Uncomment when needed.
+            //storageThread = new StorageThread(storageLock);
         }
 
         private static void ReadCacheFile()

@@ -6,6 +6,16 @@ using System.Threading.Tasks;
 
 namespace CovidTracker.Code.IO
 {
+
+    /*
+     *
+     * NOTE: This is currently unused, non-finalized test code.
+     * Later during development this will be used as sort of maintenance background task.
+     *
+     */
+
+
+
     /// <summary>
     /// StorageThread encapsulates and manages a specialized thread which manages various storage functions.
     /// </summary>
@@ -95,10 +105,10 @@ namespace CovidTracker.Code.IO
 
         private void TraceTask()
         {
-            IOReturn ret = TraceIO.WritePendingBuffer();
-            if (ret.Status == IOReturnStatus.Fail) {
-                throw ret.Exception;
-            }
+            //IOReturn ret = TraceIO.WritePendingBuffer();
+            //if (ret.Status == IOReturnStatus.Fail) {
+            //    throw ret.Exception;
+            //}
         }
 
         private enum CurrentTask
