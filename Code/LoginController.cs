@@ -26,4 +26,12 @@ namespace CovidTracker.Code
             return file;
         }
     }
+
+    public class TerminalInfo
+    {
+        public string AddressLine1 { get; set; }
+        public string AddressLine2 { get; set; }
+        public string Suburb { get; set; }
+        public int Postcode { get; set; }
+    }
 }

@@ -1,4 +1,3 @@
-using CovidTracker.Code;
 using CovidTracker.Code.IO;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;

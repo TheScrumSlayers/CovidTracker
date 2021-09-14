@@ -34,7 +34,18 @@ namespace CovidTracker.Code.IO
                 DefaultIgnoreCondition = JsonIgnoreCondition.Never
             };
 
+        #if DEBUG
+            // If we are debugging, the storage should be in the project directory.
+            // Otherwise storage is in the output directory.
+            string tmp = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
+            string up1 = Directory.GetParent(tmp).ToString();
+            string up2 = Directory.GetParent(up1).ToString();
+            string up3 = Directory.GetParent(up2).ToString();
+            StorageDirectory = Path.Combine(up3, "Storage");
+        #else
             StorageDirectory = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location), "Storage");
+        #endif
+
             StorageCacheFile = StorageDirectory + Path.DirectorySeparatorChar + "_CACHE.txt";
 
             if (!Directory.Exists(StorageDirectory)) {
