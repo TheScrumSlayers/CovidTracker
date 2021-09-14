@@ -13,12 +13,7 @@ namespace CovidTracker.Code.Database
         public DbSet<User> Users { get; set; }
         public DbSet<Signin> Signins { get; set; }
 
-        public string DbPath { get; private set; }
-
-        public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options)
-        {
-            DbPath = FileIO.StorageDirectory + Path.DirectorySeparatorChar + "database.db";
-        }
+        public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options) { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -36,8 +31,13 @@ namespace CovidTracker.Code.Database
         public DbSet<User> Users { get; set; }
         public DbSet<Signin> Signins { get; set; }
 
-        public ExternalDatabaseContext()
-        { }
+        public ExternalDatabaseContext(DbContextOptions<ExternalDatabaseContext> options) : base(options) { }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<User>().ToTable("Users");
+            modelBuilder.Entity<Signin>().ToTable("Signin");
+        }
     }
 
     public class User
@@ -48,7 +48,7 @@ namespace CovidTracker.Code.Database
         public string AddressLine1 { get; set; }
         public string AddressLine2 { get; set; }
         public string Suburb { get; set; }
-        public int Postcode { get; set; }
+        public string Postcode { get; set; }
     }
 
     public class Signin
@@ -59,6 +59,6 @@ namespace CovidTracker.Code.Database
         public string AddressLine1 { get; set; }
         public string AddressLine2 { get; set; }
         public string Suburb { get; set; }
-        public int Postcode { get; set; }
+        public string Postcode { get; set; }
     }
 }

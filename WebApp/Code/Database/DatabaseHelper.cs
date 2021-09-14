@@ -93,16 +93,26 @@ namespace CovidTracker.Code.Database
         ///
         ///
         /// 
-        public static void Test()
+        public static async void Test()
         {
             using (IServiceScope scope = Program.AppHost.Services.CreateScope()) {
                 IServiceProvider services = scope.ServiceProvider;
                 DatabaseContext context = services.GetRequiredService<DatabaseContext>();
 
-                context.Users.Add(new User
-                    { UserID = 12345, Name = "Joe" });
+                context.Users.Add(new User {
+                    UserID = 12345, 
+                    Name = "Joe", 
+                    AddressLine1 = "Lot 15 meme road", 
+                    AddressLine2 = "Big road", 
+                    PhoneNo = "2346759834", 
+                    Postcode = "2544", 
+                    Suburb = "bruh"
+                });
                 context.SaveChanges();
             }
+
+            IOReturn<User> ret = await RetrieveUser(12345);
+            User joe = ret.Value;
         }
     }
 }
