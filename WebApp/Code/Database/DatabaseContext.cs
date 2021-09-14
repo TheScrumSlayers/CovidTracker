@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.IO;
 using CovidTracker.Code.IO;
 using Microsoft.EntityFrameworkCore;
@@ -53,9 +54,12 @@ namespace CovidTracker.Code.Database
 
     public class Signin
     {
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int SigninID { get; set; }
+
         public int UserID { get; set; }
         public DateTime Time { get; set; }
+        public string PhoneNo { get; set; }
         public string AddressLine1 { get; set; }
         public string AddressLine2 { get; set; }
         public string Suburb { get; set; }

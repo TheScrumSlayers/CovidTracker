@@ -33,8 +33,8 @@ namespace CovidTracker.Code.Database
                 // Now we have user info. Record a signin.
                 User user = userOp.Value;
                 context.Add(new Signin {
-                    SigninID = 0, // TODO: Auto increment.
                     UserID = user.UserID,
+                    PhoneNo = user.PhoneNo,
                     Time = time,
                     AddressLine1 = info.AddressLine1,
                     AddressLine2 = info.AddressLine2,
@@ -113,6 +113,13 @@ namespace CovidTracker.Code.Database
 
             IOReturn<User> ret = await RetrieveUser(12345);
             User joe = ret.Value;
+
+            IOReturn ret2 = await RecordSignin(12345, DateTime.Now, new TerminalInfo {
+                AddressLine1 = "Town",
+                AddressLine2 = "THE town",
+                Suburb = "AAAA",
+                Postcode = "7777"
+            });
         }
     }
 }

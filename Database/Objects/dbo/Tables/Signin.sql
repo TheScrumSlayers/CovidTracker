@@ -1,6 +1,6 @@
 ﻿CREATE TABLE [dbo].[Signin]
 (
-	[SigninID] int,
+	[SigninID] int IDENTITY,
 	[UserID] int,
 	[Time] DateTime NOT NULL,
 	[PhoneNo] varchar(100),
