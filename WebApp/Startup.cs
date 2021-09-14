@@ -1,9 +1,11 @@
+using CovidTracker.Code.Database;
 using CovidTracker.Code.IO;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.EntityFrameworkCore;
 
 namespace CovidTracker
 {
@@ -20,6 +22,9 @@ namespace CovidTracker
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDbContext<DatabaseContext>(options =>
+                options.UseSqlServer(Configuration.GetConnectionString("InternalDb")));
+            
             services.AddHttpClient();
             services.AddRazorPages();
             services.AddServerSideBlazor();

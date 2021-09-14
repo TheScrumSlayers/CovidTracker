@@ -1,0 +1,6 @@
+SQL Server uses Microsoft SQL Management Studio
+
+Server Name:    (localdb)\MSSQLLocalDB
+Authentication: Windows
+User Name:      admin
+Database Name:  CovidTracingDatabase

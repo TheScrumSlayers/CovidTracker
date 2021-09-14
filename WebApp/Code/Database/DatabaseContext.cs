@@ -15,9 +15,15 @@ namespace CovidTracker.Code.Database
 
         public string DbPath { get; private set; }
 
-        public DatabaseContext()
+        public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options)
         {
             DbPath = FileIO.StorageDirectory + Path.DirectorySeparatorChar + "database.db";
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<User>().ToTable("Users");
+            modelBuilder.Entity<Signin>().ToTable("Signin");
         }
     }
 

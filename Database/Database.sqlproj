@@ -62,5 +62,7 @@
   </ItemGroup>
   <ItemGroup>
     <Build Include="Objects\dbo\Tables\ExampleTableDeleteLater.sql" />
+    <Build Include="Objects\dbo\Tables\Users.sql" />
+    <Build Include="Objects\dbo\Tables\Signin.sql" />
   </ItemGroup>
 </Project>
