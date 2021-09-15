@@ -35,11 +35,51 @@
                 <label for="exampleFormControlInput1" class="form-label" style="font-weight: 400; color: #232222;font-size: 1.8rem;">
                     please input your unique identification here
                 </label>
-                <input @bind="@ID" type="text" class="form-control form-control-lg" id="exampleFormControlInput1">
+                <input @bind="@ID" type="text" class="form-control form-control-lg" id="identifier">
             </div>
-            <button type="button" class="btn btn-primary btn-block btn-lg" @onclick="@Post">Submit</button>
-
-            <img src="qrcode.png" class="rounded mx-auto d-block" alt="...">
+            <button id="submitButton" type="button" class="btn btn-primary btn-block btn-lg" @onclick="@Post">Submit</button>
+            
+            <!-- Render the scan page. -->
+            <div class="my-5 d-flex justify-content-center">
+                <div id="qr-reader" style="width:500px"></div>
+                <div id="qr-reader-results"></div>
+            </div>
+            <script src="html5-qrcode.min.js" suppress-error="BL9992"></script>
+            <script suppress-error="BL9992">
+                function docReady(fn) {
+                    // see if DOM is already available
+                    if (document.readyState === "complete"
+                        || document.readyState === "interactive") {
+                        // call on next available tick
+                        setTimeout(fn, 1);
+                    } else {
+                        document.addEventListener("DOMContentLoaded", fn);
+                    }
+                }
+            
+                docReady(function () {
+                    var lastResult, countResults = 0;
+                    function onScanSuccess(decodedText, decodedResult) {
+                        if (decodedText !== lastResult) {
+                            ++countResults;
+                            lastResult = decodedText;
+                            // Handle on success condition with the decoded message.
+                            console.log(`Scan result ${decodedText}`, decodedResult);
+                            var myElement = document.getElementById('identifier');
+                            myElement.value = decodedText;
+                            var event = new Event('change');
+                            myElement.dispatchEvent(event);
+                                setTimeout(function () {
+                                   document.getElementById('submitButton').click();
+                                }, 1000);
+                        }
+                    }
+            
+                    var html5QrcodeScanner = new Html5QrcodeScanner(
+                        "qr-reader", { fps: 10, qrbox: 250 });
+                    html5QrcodeScanner.render(onScanSuccess);
+                });
+            </script>
             break;
         case Page.Summary:
             <!-- Render the example summary page. -->
