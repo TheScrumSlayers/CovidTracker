@@ -1,3 +1,4 @@
+using Blazored.LocalStorage;
 using CovidTracker.Code.Database;
 using CovidTracker.Code.IO;
 using Microsoft.AspNetCore.Builder;
@@ -28,6 +29,7 @@ namespace CovidTracker
             services.AddHttpClient();
             services.AddRazorPages();
             services.AddServerSideBlazor();
+            services.AddBlazoredLocalStorage();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

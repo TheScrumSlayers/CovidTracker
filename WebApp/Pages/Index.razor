@@ -3,16 +3,32 @@
 @using CovidTracker.Code
 @using Microsoft.AspNetCore.Identity
 @inject NavigationManager Navigator
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
 
 <div class="text-center py-2">
     <h1>Welcome to the COVID SAFE System !</h1>
-</div>z
+</div>
 
 <!-- If the page is in a loading state, show loading message. Otherwise, render the relevant page. -->
 @if (LoadState == PageState.Loading) {
     <p>...LOADING...</p>
 } else {
     switch (CurrentPage) {
+        case Page.Setup:
+            <!-- Render the first time setup page. -->
+            <div class="my-5 text-center">
+                <p>First time setup *WIP*</p><br />
+                <p>Address Line 1:</p>
+                <input @bind="@SetupAddress1" type="text" class="form-control form-control-lg" id="exampleFormControlInput1"><br />
+                <p>Address Line 2:</p>
+                <input @bind="@SetupAddress2" type="text" class="form-control form-control-lg" id="exampleFormControlInput1"><br />
+                <p>Suburb:</p>
+                <input @bind="@SetupSuburb" type="text" class="form-control form-control-lg" id="exampleFormControlInput1"><br />
+                <p>Postcode:</p>
+                <input @bind="@SetupPostcode" type="text" class="form-control form-control-lg" id="exampleFormControlInput1"><br />
+                <button type="button" class="btn btn-primary" @onclick="@SubmitSetup">Submit</button>
+            </div>
+            break;
         case Page.Login:
             <!-- Render login page. -->
             <div class="my-5 text-center">
@@ -22,14 +38,14 @@
                 <input @bind="@ID" type="text" class="form-control form-control-lg" id="exampleFormControlInput1">
             </div>
             <button type="button" class="btn btn-primary btn-block btn-lg" @onclick="@Post">Submit</button>
-                                                                                           
-            <img src="qrcode.png" class="rounded mx-auto d-block" alt="...">
 
+            <img src="qrcode.png" class="rounded mx-auto d-block" alt="...">
             break;
         case Page.Summary:
             <!-- Render the example summary page. -->
             <div class="alert alert-success" role="alert">
-                Congratulation! you complete logging.</div>
+                Congratulation! you complete logging.
+            </div>
             <p>
                 *THIS IS EXAMPLE OUTPUT ONLY*<br /><br />
                 ID: @ID<br />
@@ -54,10 +70,71 @@
     public string ID { get; set; } = "";
 
     [Parameter]
+    public string SetupAddress1 { get; set; } = "";
+
+    [Parameter]
+    public string SetupAddress2 { get; set; } = "";
+
+    [Parameter]
+    public string SetupSuburb { get; set; } = "";
+
+    [Parameter]
+    public string SetupPostcode { get; set; } = "";
+
+    [Parameter]
+    public bool PendingSetupSubmission { get; set; } = false;
+
+    [Parameter]
     public PageState LoadState { get; set; } = PageState.Loaded;
 
     [Parameter]
-    public Page CurrentPage { get; set; } = Page.Login;
+    public Page CurrentPage { get; set; } = Page.Setup;
+
+    private TerminalInfo TerminalInfo;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender) {
+            // Check if local storage exists.
+            string check = await localStorage.GetItemAsync<string>("Setup");
+
+            if (string.IsNullOrEmpty(check)) {
+                // If it does not, perform first time setup.
+                CurrentPage = Page.Setup;
+                LoadState = PageState.Loaded;
+                StateHasChanged();
+            } else {
+                // If it does, set the terminal-specific data.
+                TerminalInfo = await localStorage.GetItemAsync<TerminalInfo>("Info");
+                CurrentPage = Page.Login;
+                LoadState = PageState.Loaded;
+                StateHasChanged();
+            }
+        }
+
+        // This code executes if the technician has pressed the setup button.
+        if (PendingSetupSubmission) {
+            TerminalInfo = new TerminalInfo {
+                AddressLine1 = SetupAddress1,
+                AddressLine2 = SetupAddress2,
+                Suburb = SetupSuburb,
+                Postcode = SetupPostcode
+            };
+            await localStorage.SetItemAsync("Setup", "True");
+            await localStorage.SetItemAsync("Info", TerminalInfo);
+
+            PendingSetupSubmission = false;
+            CurrentPage = Page.Login;
+            LoadState = PageState.Loaded;
+            StateHasChanged();
+        }
+    }
+
+    public async void SubmitSetup()
+    {
+        PendingSetupSubmission = true;
+        StateHasChanged();
+    }
 
     public async void Post()
     {
@@ -87,8 +164,8 @@
 
     public enum Page
     {
+        Setup,
         Login,
         Summary
-    
     }
 }
