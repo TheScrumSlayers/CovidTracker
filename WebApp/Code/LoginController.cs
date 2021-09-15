@@ -15,17 +15,28 @@ namespace CovidTracker.Code
     public class LoginController : ControllerBase
     {
         [HttpPost]
-        public string Login([FromBody] string data)
+        public async Task<string> Login([FromBody] SigninPostData data)
         {
-            Random rand = new Random(Environment.TickCount);
+            int parsed;
+            try {
+                parsed = int.Parse(data.UserID);
+            } catch (Exception) {
+                return "Error: The QR code is invalid.";
+            }
 
-            // NOTE: Test code. Not final!
-            // As a test, log the data to a file.
-            string file = FileIO.StorageDirectory + Path.DirectorySeparatorChar + rand.Next() + ".txt";
-            FileIO.Write(file, $"Recieved POST from: {data}\n");
-
-            return file;
+            IOReturn ret = await DatabaseHelper.RecordSignin(parsed, data.DateTime, data.TerminalInfo);
+            
+            return ret.Status == IOReturnStatus.Success 
+                ? "SUCCESS" 
+                : "Error: User was not found.";
         }
+    }
+
+    public class SigninPostData
+    {
+        public string UserID { get; set; }
+        public DateTime DateTime { get; set; }
+        public TerminalInfo TerminalInfo { get; set; }
     }
 
     public class TerminalInfo

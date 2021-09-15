@@ -35,23 +35,22 @@
                 <label for="exampleFormControlInput1" class="form-label" style="font-weight: 400; color: #232222;font-size: 1.8rem;">
                     please input your unique identification here
                 </label>
-                <input @bind="@ID" type="text" class="form-control form-control-lg" id="identifier">
+                <input @bind="@ID" type="text" style="display: none;" id="identifier">
             </div>
-            <button id="submitButton" type="button" class="btn btn-primary btn-block btn-lg" @onclick="@Post">Submit</button>
+            <button id="submitButton" type="button" style="display: none;" @onclick="@Post">Submit</button>
             
             <!-- Render the scan page. -->
             <div class="my-5 d-flex justify-content-center">
                 <div id="qr-reader" style="width:500px"></div>
                 <div id="qr-reader-results"></div>
             </div>
-            <script src="html5-qrcode.min.js" suppress-error="BL9992"></script>
             <script suppress-error="BL9992">
                 function docReady(fn) {
                     // see if DOM is already available
                     if (document.readyState === "complete"
                         || document.readyState === "interactive") {
                         // call on next available tick
-                        setTimeout(fn, 1);
+                        setTimeout(fn, 2);
                     } else {
                         document.addEventListener("DOMContentLoaded", fn);
                     }
@@ -64,7 +63,7 @@
                             ++countResults;
                             lastResult = decodedText;
                             // Handle on success condition with the decoded message.
-                            console.log(`Scan result ${decodedText}`, decodedResult);
+                            // console.log(`Scan result ${decodedText}`, decodedResult);
                             var myElement = document.getElementById('identifier');
                             myElement.value = decodedText;
                             var event = new Event('change');
@@ -83,17 +82,15 @@
             break;
         case Page.Summary:
             <!-- Render the example summary page. -->
-            <div class="alert alert-success" role="alert">
-                Congratulation! you complete logging.
-            </div>
-            <p>
-                *THIS IS EXAMPLE OUTPUT ONLY*<br /><br />
-                ID: @ID<br />
-                Location: Adelaide<br />
-                Phone number: ...<br /><br />
-                A server-side log was saved to "@Text".
-            </p>
-            <button type="button" class="btn btn-primary" @onclick="@HideSummary">Back</button>
+            @if (SigninWasSuccessful) {
+                <div class="alert alert-success" role="alert">
+                    Signin was successful!
+                </div>
+            } else {
+                <div class="alert alert-danger" role="alert">
+                    @SigninError
+                </div>
+            }
             break;
         default:
             <!-- Render error message if we are at an unrecognized page. This should not happen. -->
@@ -104,7 +101,10 @@
 
 @code {
     [Parameter]
-    public string Text { get; set; } = "";
+    public string SigninError { get; set; } = "";
+
+    [Parameter]
+    public bool SigninWasSuccessful { get; set; } = false;
 
     [Parameter]
     public string ID { get; set; } = "";
@@ -178,13 +178,34 @@
 
     public async void Post()
     {
-        Text = "";
         LoadState = PageState.Loading;
         StateHasChanged();
-        HttpResponseMessage msg = await AppClient.PostJsonAsync(@Navigator.BaseUri + "api/Login", ID);
-        Text = await msg.Content.ReadAsStringAsync();
+
+        SigninPostData data = new SigninPostData {
+            UserID = ID,
+            DateTime = DateTime.Now,
+            TerminalInfo = TerminalInfo
+        };
+
+        HttpResponseMessage msg = await AppClient.PostJsonAsync<SigninPostData>(@Navigator.BaseUri + "api/Login", data);
+        string msgStr = await msg.Content.ReadAsStringAsync();
+        if(msgStr == "SUCCESS") {
+            SigninWasSuccessful = true;
+            SigninError = "";
+        } else {
+            SigninWasSuccessful = false;
+            SigninError = msgStr;
+        }
+
+        // When a signin occurs, the page is swapped to a summary page.
+        // After a brief period of time, it returns back to the logging in menu.
         LoadState = PageState.Loaded;
         CurrentPage = Page.Summary;
+        StateHasChanged();
+
+        await Task.Delay(SigninWasSuccessful ? 3000 : 6000);
+
+        CurrentPage = Page.Login;
         StateHasChanged();
     }
 
@@ -209,3 +230,5 @@
         Summary
     }
 }
+
+<script src="html5-qrcode.min.js" suppress-error="BL9992"></script>
