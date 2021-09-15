@@ -6,7 +6,7 @@
 
 <div class="text-center py-2">
     <h1>Welcome to the COVID SAFE System !</h1>
-</div>
+</div>z
 
 <!-- If the page is in a loading state, show loading message. Otherwise, render the relevant page. -->
 @if (LoadState == PageState.Loading) {
@@ -22,6 +22,9 @@
                 <input @bind="@ID" type="text" class="form-control form-control-lg" id="exampleFormControlInput1">
             </div>
             <button type="button" class="btn btn-primary btn-block btn-lg" @onclick="@Post">Submit</button>
+                                                                                           
+            <img src="qrcode.png" class="rounded mx-auto d-block" alt="...">
+
             break;
         case Page.Summary:
             <!-- Render the example summary page. -->
@@ -86,5 +89,6 @@
     {
         Login,
         Summary
+    
     }
 }
