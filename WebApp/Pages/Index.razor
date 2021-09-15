@@ -203,7 +203,7 @@
         CurrentPage = Page.Summary;
         StateHasChanged();
 
-        await Task.Delay(SigninWasSuccessful ? 3000 : 6000);
+        await Task.Delay(SigninWasSuccessful ? 2000 : 5000);
 
         CurrentPage = Page.Login;
         StateHasChanged();

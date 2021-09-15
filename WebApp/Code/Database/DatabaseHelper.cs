@@ -21,6 +21,10 @@ namespace CovidTracker.Code.Database
         /// <returns></returns>
         public static async Task<IOReturn> RecordSignin(int userID, DateTime time, TerminalInfo info)
         {
+        #if DEBUG
+            await Test();
+        #endif
+
             using (IServiceScope scope = Program.AppHost.Services.CreateScope()) {
                 IServiceProvider services = scope.ServiceProvider;
                 DatabaseContext context = services.GetRequiredService<DatabaseContext>();
@@ -94,18 +98,18 @@ namespace CovidTracker.Code.Database
 
         // !!!!!!!!!TEMPORARY CODE DELETE WHEN DONE!!!!!!!
     #if DEBUG
-        public static async void Test()
+        public static async Task Test()
         {
             // Create example data if it doesn't exist.
             IOReturn<User> ret = await RetrieveLocallyStoredUser(1111);
             if (ret.Status == IOReturnStatus.Fail) {
-                CreateExampleData();
+                await CreateExampleData();
             }
 
             // TODO: More tests to retrieve data.
         }
 
-        public static async void CreateExampleData()
+        public static async Task CreateExampleData()
         {
             using (IServiceScope scope = Program.AppHost.Services.CreateScope()) {
                 IServiceProvider services = scope.ServiceProvider;
