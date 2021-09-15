@@ -44,8 +44,7 @@
                 <div id="qr-reader" style="width:500px"></div>
                 <div id="qr-reader-results"></div>
             </div>
-            <script suppress-error="BL9992">
-                function docReady(fn) {
+            <script suppress-error="BL9992">function docReady(fn) {
                     // see if DOM is already available
                     if (document.readyState === "complete"
                         || document.readyState === "interactive") {
@@ -55,30 +54,52 @@
                         document.addEventListener("DOMContentLoaded", fn);
                     }
                 }
-            
+
                 docReady(function () {
-                    var lastResult, countResults = 0;
-                    function onScanSuccess(decodedText, decodedResult) {
-                        if (decodedText !== lastResult) {
-                            ++countResults;
-                            lastResult = decodedText;
-                            // Handle on success condition with the decoded message.
-                            // console.log(`Scan result ${decodedText}`, decodedResult);
-                            var myElement = document.getElementById('identifier');
-                            myElement.value = decodedText;
-                            var event = new Event('change');
-                            myElement.dispatchEvent(event);
-                                setTimeout(function () {
-                                   document.getElementById('submitButton').click();
-                                }, 1000);
+
+                    Html5Qrcode.getCameras().then(devices => {
+                        /**
+                         * devices would be an array of objects of type:
+                         * { id: "id", label: "label" }
+                         */
+                        if (devices && devices.length) {
+                            var cameraId = devices[0].id;
+                            // .. use this to start scanning.
+
+                            var lastResult, countResults = 0;
+                            var html5QrCode = new Html5Qrcode("qr-reader");
+                            html5QrCode.start(cameraId, 
+                                // Function when a code is read.
+                                    {
+                                        fps: 10, // Optional, frame per seconds for qr code scanning
+                                        qrbox: 250 // Optional, if you want bounded box UI
+                                    },
+                                    (decodedText, decodedResult) => {
+                                        if (decodedText !== lastResult) {
+                                            ++countResults;
+                                            lastResult = decodedText;
+                                            // Handle on success condition with the decoded message.
+                                            // console.log(`Scan result ${decodedText}`, decodedResult);
+                                            var myElement = document.getElementById('identifier');
+                                            myElement.value = decodedText;
+                                            var event = new Event('change');
+                                            myElement.dispatchEvent(event);
+                                            setTimeout(function () {
+                                                document.getElementById('submitButton').click();
+                                            }, 1000);
+                                        }
+                                    },
+                                    (errorMessage) => {
+                                        // parse error, ignore it.
+                                    })
+                                .catch((err) => {
+                                    // Start failed, handle it.
+                                });
                         }
-                    }
-            
-                    var html5QrcodeScanner = new Html5QrcodeScanner(
-                        "qr-reader", { fps: 10, qrbox: 250 });
-                    html5QrcodeScanner.render(onScanSuccess);
-                });
-            </script>
+                    }).catch(err => {
+                        // handle err
+                    });
+                });</script>
             break;
         case Page.Summary:
             <!-- Render the example summary page. -->
