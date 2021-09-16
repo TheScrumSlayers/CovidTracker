@@ -19,7 +19,6 @@ namespace CovidTracker.Code.IO
         
         private static JsonSerializerOptions jsonOptions;
         private static StorageCache storageCache;
-        private static StorageThread storageThread;
         private static object storageLock = new object();
 
         public static void Initialize()
@@ -53,10 +52,6 @@ namespace CovidTracker.Code.IO
             }
 
             ReadCacheFile();
-
-            // Create maintenance thread.
-            // TODO: Uncomment when needed.
-            //storageThread = new StorageThread(storageLock);
         }
 
         private static void ReadCacheFile()
@@ -128,7 +123,9 @@ namespace CovidTracker.Code.IO
                 }
             }
 
-            return except != null ? new IOReturn(IOReturnStatus.Fail, except) : new IOReturn(IOReturnStatus.Success);
+            return except != null 
+                ? new IOReturn(IOReturnStatus.Fail, except) 
+                : new IOReturn(IOReturnStatus.Success);
         }
 
         /// <summary>
@@ -160,7 +157,9 @@ namespace CovidTracker.Code.IO
                 }
             }
 
-            return except != null ? new IOReturn<string>(IOReturnStatus.Fail, str, except) : new IOReturn<string>(IOReturnStatus.Success, str);
+            return except != null 
+                ? new IOReturn<string>(IOReturnStatus.Fail, str, except) 
+                : new IOReturn<string>(IOReturnStatus.Success, str);
         }
 
         /// <summary>
@@ -194,7 +193,9 @@ namespace CovidTracker.Code.IO
                 }
             }
 
-            return except != null ? new IOReturn<T>(IOReturnStatus.Fail, val, except) : new IOReturn<T>(IOReturnStatus.Success, val);
+            return except != null
+                ? new IOReturn<T>(IOReturnStatus.Fail, val, except) 
+                : new IOReturn<T>(IOReturnStatus.Success, val);
         }
     }
 
