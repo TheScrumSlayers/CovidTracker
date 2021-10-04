@@ -61,7 +61,7 @@
      }
 </table>
 
-<h2>What to find:</h2>
+<h2>What to include in the report:</h2>
 <ul>
 @foreach(User user in usersToTrack) {
     <li>Locations where ID: @user.UserID (@user.Name) visited.</li>
@@ -74,7 +74,7 @@
 }
 </ul>
 
-<button @onclick="Submit">Generate Report</button>
+<button @onclick="Submit">Generate</button>
 
 @code { 
     public string peopleName;
