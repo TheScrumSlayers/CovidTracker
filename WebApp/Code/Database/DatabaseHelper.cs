@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CovidTracker.Code.IO;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore;
 
 namespace CovidTracker.Code.Database
 {
@@ -12,6 +13,49 @@ namespace CovidTracker.Code.Database
     /// </summary>
     public static class DatabaseHelper
     {
+        public static async Task<IOReturn<List<User>>> SearchUsers(string name, string phoneNo)
+        {
+            using (IServiceScope scope = Program.AppHost.Services.CreateScope()) {
+                IServiceProvider services = scope.ServiceProvider;
+                DatabaseContext context = services.GetRequiredService<DatabaseContext>();
+
+                IEnumerable<User> user = context.Users;
+                if (!string.IsNullOrEmpty(name)) {
+                    user = user.Where(u => u.Name.ToLower() == name.ToLower());
+                }
+                if (!string.IsNullOrEmpty(phoneNo)) {
+                    if(int.TryParse(phoneNo, out int i)) {
+                        user = user.Where(u => u.PhoneNo == phoneNo.ToString());
+                    }
+                }
+
+                return new IOReturn<List<User>>(IOReturnStatus.Success, user.ToList());
+            }
+        }
+
+        public static async Task<IOReturn<List<Signin>>> SearchSignins(string userID, string addressLine1, string addressLine2)
+        {
+            using (IServiceScope scope = Program.AppHost.Services.CreateScope()) {
+                IServiceProvider services = scope.ServiceProvider;
+                DatabaseContext context = services.GetRequiredService<DatabaseContext>();
+
+                IEnumerable<Signin> signin = context.Signins;
+                if (!string.IsNullOrEmpty(userID)) {
+                    if(int.TryParse(userID, out int id)) {
+                        signin = signin.Where(s => s.UserID == id);
+                    }
+                }
+                if (!string.IsNullOrEmpty(addressLine1)) {
+                    signin = signin.Where(s => s.AddressLine1 == addressLine1);
+                }
+                if (!string.IsNullOrEmpty(addressLine1)) {
+                    signin = signin.Where(s => s.AddressLine2 == addressLine2);
+                }
+
+                return new IOReturn<List<Signin>>(IOReturnStatus.Success, signin.ToList());
+            }
+        }
+
         /// <summary>
         /// Record a user sign in.
         /// </summary>
