@@ -71,15 +71,18 @@ namespace CovidTracker.Code.Database
             return new IOReturn<HashSet<User>>(IOReturnStatus.Success, reportUsers);
         }
 
-        public static async Task<IOReturn<List<User>>> SearchUsers(string name, string phoneNo)
+        public static async Task<IOReturn<List<User>>> SearchUsers(int? id, string name, string phoneNo)
         {
             using (IServiceScope scope = Program.AppHost.Services.CreateScope()) {
                 IServiceProvider services = scope.ServiceProvider;
                 DatabaseContext context = services.GetRequiredService<DatabaseContext>();
 
                 IEnumerable<User> user = context.Users;
+                if (id.HasValue) {
+                    user = user.Where(u => u.UserID == id.Value);
+                }
                 if (!string.IsNullOrEmpty(name)) {
-                    user = user.Where(u => u.Name.ToLower() == name.ToLower());
+                    user = user.Where(u => u.Name.ToLower().Contains(name.ToLower()));
                 }
                 if (!string.IsNullOrEmpty(phoneNo)) {
                     if(int.TryParse(phoneNo, out int i)) {

@@ -8,62 +8,113 @@
 @inject NavigationManager Navigator
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
 
-<h1>PROTOTYPE - NOT FINAL</h1>
+@switch(CurrentPage) {
+    case Page.EditReport:
 
-<!-- This is the people searching form. -->
-<h2>Search People</h2>
-<p>Name</p>
-<input @bind="@peopleName" />
-<p>Phone Number</p>
-<input @bind="@peopePhoneNo" />
-<br />
-<button @onclick="@SearchPeople">Search</button>
+        <h1>Report Generator</h1>
 
-<!-- This is a table of users which is returned from the people searching form.
-     Loops through the users and renders a table row for each. -->
-<table>
-    @foreach (User user in searchUsers) {
-    <tr>
-        <th>@user.UserID</th>
-        <th>@user.Name</th>
-        <th>@user.AddressLine1</th>
-        <th>@user.AddressLine2</th>
-        <th>@user.Suburb</th>
-        <th>@user.Postcode</th>
-        <th>@user.PhoneNo</th>
-        <button @onclick="() => TrackUser(user)">Track</button>
-    </tr>
-    }
-</table>
+        <!-- This is the people searching form. -->
+        <h2>Search People</h2>
+        <p>ID</p>
+        <input @bind="@peopleID" />
+        <p>Name</p>
+        <input @bind="@peopleName" />
+        <p>Phone Number</p>
+        <input @bind="@peopePhoneNo" />
+        <br />
+        <button @onclick="@SearchPeople">Search</button>
 
-<h2>Generate Report:</h2>
-<p>Before</p>
-<input type="date" @bind="@reportBeforeDate"/>
-<input type="time" @bind="@reportBeforeTime"/>
-<p>After</p>
-<input type="date" @bind="@reportAfterDate"/>
-<input type="time" @bind="@reportAfterTime"/>
-<p>Depth</p>
-<input type="number" @bind="@reportNumber" />
-<h3>Persons included</h3>
-<ul>
-    @foreach (User user in usersToTrack) {
-        <li>ID: @user.UserID (@user.Name).</li>
-    }
-</ul>
+        <!-- This is a table of users which is returned from the people searching form.
+             Loops through the users and renders a table row for each. -->
+        
+        @if(FetchingUsers) { 
+            <p>FETCHING USERS...</p>
+        } else if (searchUsers.Count == 0) { 
+            <p>Search results will appear here.</p>
+        } else { 
+            <table>
 
-@if(generatedReport.Count > 0) {
-    <h2>Report:</h2>
-    @foreach(User user in generatedReport) { 
-        <p>@user.Name</p>
-    }
+            <tr>
+                <th>User ID</th>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Address Line 1</th>
+                <th>Address Line 2</th>
+                <th>Suburb</th>
+                <th>Postcode</th>
+            </tr>
+
+            @foreach (User user in searchUsers) {
+                <tr>
+                    <th>@user.UserID</th>
+                    <th>@user.Name</th>
+                    <th>@user.AddressLine1</th>
+                    <th>@user.AddressLine2</th>
+                    <th>@user.Suburb</th>
+                    <th>@user.Postcode</th>
+                    <th>@user.PhoneNo</th>
+                    <button @onclick="() => TrackUser(user)">Track</button>
+                </tr>
+            }
+            </table>
+        }
+
+        <h2>Generate Report:</h2>
+        <p>Before</p>
+        <input type="date" @bind="@reportBeforeDate"/>
+        <input type="time" @bind="@reportBeforeTime"/>
+        <p>After</p>
+        <input type="date" @bind="@reportAfterDate"/>
+        <input type="time" @bind="@reportAfterTime"/>
+        <p>Depth</p>
+        <input type="number" @bind="@reportNumber" />
+        <h3>Persons included</h3>
+        <ul>
+            @foreach (User user in usersToTrack) {
+                <li>ID: @user.UserID (@user.Name).</li>
+            }
+        </ul>
+
+        <button @onclick="@Submit">Generate</button>
+        break;
+
+    case Page.Loading:
+        <h1>Generating report, please wait...</h1>
+        break;
+
+    case Page.ViewReport:
+        <h2>Report:</h2>
+
+        <table>
+            <tr>
+                <th>User ID</th>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Address Line 1</th>
+                <th>Address Line 2</th>
+                <th>Suburb</th>
+                <th>Postcode</th>
+            </tr>
+
+        @foreach(User user in generatedReport) { 
+            <tr>
+                <th>@user.UserID</th>
+                <th>@user.Name</th>
+                <th>@user.PhoneNo</th>
+                <th>@user.AddressLine1</th>
+                <th>@user.AddressLine2</th>
+                <th>@user.Suburb</th>
+                <th>@user.Postcode</th>
+            </tr>
+        }
+
+        </table>
+        break;
 }
-<h2>Report:</h2>
-
-<button @onclick="Submit">Generate</button>
 
 @code 
 { 
+    public string peopleID;
     public string peopleName;
     public string peopePhoneNo;
 
@@ -79,11 +130,24 @@
 
     public List<User> generatedReport = new List<User>();
 
-    public async void SearchPeople()
+    [Parameter]
+    public Page CurrentPage { get; set; } = Page.EditReport;
+
+    [Parameter]
+    public bool FetchingUsers { get; set; } = false;
+
+    public async Task SearchPeople()
     {
         searchUsers.Clear();
-        IOReturn<List<User>> user = await DatabaseHelper.SearchUsers(peopleName, peopePhoneNo);
+        FetchingUsers = true;
+        await Task.Delay(1);
+
+        int? id = string.IsNullOrEmpty(peopleID) ? null : int.TryParse(peopleID, out int z) ? z : null;
+        IOReturn<List<User>> user = await DatabaseHelper.SearchUsers(id, peopleName, peopePhoneNo);
         searchUsers = user.Value;
+
+        FetchingUsers = false;
+        await Task.Delay(1);
     }
 
     public void TrackUser(User user)
@@ -93,13 +157,28 @@
         }
     }
 
-    public async void Submit()
+    public async Task Submit()
     {
+        searchUsers.Clear();
         generatedReport.Clear();
-
+        CurrentPage = Page.Loading;
         DateTime before = new DateTime(reportBeforeDate.Year, reportBeforeDate.Month, reportBeforeDate.Day, reportBeforeTime.Hour, reportBeforeTime.Minute, reportBeforeTime.Second);
         DateTime after = new DateTime(reportAfterDate.Year, reportAfterDate.Month, reportAfterDate.Day, reportAfterTime.Hour, reportAfterTime.Minute, reportAfterTime.Second);
+
+        // Task.Delay updates the UI due to await.
+        await Task.Delay(1);
+
         IOReturn<List<User>> ret = await DatabaseHelper.GenerateReport(usersToTrack, reportNumber, before, after);
         generatedReport = ret.Value;
+
+        CurrentPage = Page.ViewReport;
+        await Task.Delay(1);
+    }
+
+    public enum Page
+    {
+        EditReport,
+        Loading,
+        ViewReport
     }
 }
