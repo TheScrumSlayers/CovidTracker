@@ -115,9 +115,9 @@
 
 @code 
 { 
-    public string peopleID;
+    public int? peopleID = null;
     public string peopleName;
-    public string peopePhoneNo;
+    public ulong? peopePhoneNo = null;
 
     public DateTime reportBeforeDate = new DateTime(2022, 1, 1);
     public DateTime reportBeforeTime;
@@ -141,8 +141,7 @@
         FetchingUsers = true;
         await Task.Delay(1);
 
-        int? id = string.IsNullOrEmpty(peopleID) ? null : int.TryParse(peopleID, out int z) ? z : null;
-        IOReturn<List<User>> user = await DatabaseHelper.SearchUsers(id, peopleName, peopePhoneNo);
+        IOReturn<List<User>> user = await DatabaseHelper.SearchUsers(peopleID, peopleName, peopePhoneNo);
         searchUsers = user.Value;
 
         FetchingUsers = false;
