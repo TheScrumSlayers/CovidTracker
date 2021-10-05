@@ -2,7 +2,7 @@
 @using System.Net
 @using CovidTracker.Code
 @using CovidTracker.Code.Database;
-@using CovidTracker.Code.IO;  
+@using CovidTracker.Code.IO;
 @using Microsoft.AspNetCore.Identity
 @using CovidTracker.Code.Database;
 @inject NavigationManager Navigator
@@ -15,14 +15,14 @@
 <p>Name</p>
 <input @bind="@peopleName" />
 <p>Phone Number</p>
-<input @bind="@peopePhoneNo" /><br />
+<input @bind="@peopePhoneNo" />
+<br />
 <button @onclick="@SearchPeople">Search</button>
 
-<!-- This is a table of users which is returned from the people searching form. 
+<!-- This is a table of users which is returned from the people searching form.
      Loops through the users and renders a table row for each. -->
 <table>
-    @foreach (User user in searchUsers)
-    {
+    @foreach (User user in searchUsers) {
     <tr>
         <th>@user.UserID</th>
         <th>@user.Name</th>
@@ -36,72 +36,54 @@
     }
 </table>
 
-<!-- This is the signin searching form. -->
-<h2>Search Signins</h2>
-<p>Person ID</p>
-<input @bind="@signinUserID" />
-<p>Address Line 1</p>
-<input @bind="@signinAddressLine1" />
-<p>Address Line 1</p>
-<input @bind="@signinAddressLine2" /><br />
-<button @onclick="@SearchSignins">Search</button>
-<table>
-    @foreach (Signin signin in searchSignins) {
-    <tr>
-        <th>@signin.SigninID</th>
-        <th>@signin.UserID</th>
-        <th>@signin.Time</th>
-        <th>@signin.AddressLine1</th>
-        <th>@signin.AddressLine2</th>
-        <th>@signin.Suburb</th>
-        <th>@signin.Postcode</th>
-        <th>@signin.PhoneNo</th>
-        <button @onclick="() => TrackLocation(signin)">Track</button>
-    </tr>
-     }
-</table>
-
-<h2>What to include in the report:</h2>
+<h2>Generate Report:</h2>
+<p>Before</p>
+<input type="date" @bind="@reportBeforeDate"/>
+<input type="time" @bind="@reportBeforeTime"/>
+<p>After</p>
+<input type="date" @bind="@reportAfterDate"/>
+<input type="time" @bind="@reportAfterTime"/>
+<p>Depth</p>
+<input type="number" @bind="@reportNumber" />
+<h3>Persons included</h3>
 <ul>
-@foreach(User user in usersToTrack) {
-    <li>Locations where ID: @user.UserID (@user.Name) visited.</li>
-}
+    @foreach (User user in usersToTrack) {
+        <li>ID: @user.UserID (@user.Name).</li>
+    }
 </ul>
 
-<ul>
-@foreach (Signin signin in signinLocationsToTrack) {
-    <li>People who visited ID: @signin.SigninID (@signin.AddressLine1, @signin.AddressLine2).</li>
+@if(generatedReport.Count > 0) {
+    <h2>Report:</h2>
+    @foreach(User user in generatedReport) { 
+        <p>@user.Name</p>
+    }
 }
-</ul>
+<h2>Report:</h2>
 
 <button @onclick="Submit">Generate</button>
 
-@code { 
+@code 
+{ 
     public string peopleName;
     public string peopePhoneNo;
 
-    public string signinUserID;
-    public string signinAddressLine1;
-    public string signinAddressLine2;
+    public DateTime reportBeforeDate;
+    public DateTime reportBeforeTime;
+    public DateTime reportAfterDate;
+    public DateTime reportAfterTime;
+    public int reportNumber;
 
     public List<User> searchUsers = new List<User>();
-    public List<Signin> searchSignins = new List<Signin>();
 
     public List<User> usersToTrack = new List<User>();
-    public List<Signin> signinLocationsToTrack = new List<Signin>();
+
+    public List<User> generatedReport = new List<User>();
 
     public async void SearchPeople()
     {
         searchUsers.Clear();
         IOReturn<List<User>> user = await DatabaseHelper.SearchUsers(peopleName, peopePhoneNo);
         searchUsers = user.Value;
-    }
-
-    public async void SearchSignins()
-    {
-        searchSignins.Clear();
-        IOReturn<List<Signin>> signin = await DatabaseHelper.SearchSignins(signinUserID, signinAddressLine1, signinAddressLine2);
-        searchSignins = signin.Value;
     }
 
     public void TrackUser(User user)
@@ -111,26 +93,13 @@
         }
     }
 
-    public void TrackLocation(Signin signin)
+    public async void Submit()
     {
-        if (!signinLocationsToTrack.Contains(signin)) {
-            
-            // Do not track duplicate locations.
-            foreach(Signin s in signinLocationsToTrack) {
-                if(s.AddressLine1 == signin.AddressLine1 &&
-                    s.AddressLine2 == signin.AddressLine2 &&
-                    s.Suburb == signin.Suburb &&
-                    s.Postcode == signin.Postcode) {
-                        return;
-                }
-            }
+        generatedReport.Clear();
 
-            signinLocationsToTrack.Add(signin);
-        }
-    }
-
-    public void Submit()
-    {
-
+        DateTime before = new DateTime(reportBeforeDate.Year, reportBeforeDate.Month, reportBeforeDate.Day, reportBeforeTime.Hour, reportBeforeTime.Minute, reportBeforeTime.Second);
+        DateTime after = new DateTime(reportAfterDate.Year, reportAfterDate.Month, reportAfterDate.Day, reportAfterTime.Hour, reportAfterTime.Minute, reportAfterTime.Second);
+        IOReturn<List<User>> ret = await DatabaseHelper.GenerateReport(usersToTrack, reportNumber, before, after);
+        generatedReport = ret.Value;
     }
 }

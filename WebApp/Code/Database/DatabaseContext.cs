@@ -41,7 +41,7 @@ namespace CovidTracker.Code.Database
         }
     }
 
-    public class User
+    public class User : IEquatable<User>
     {
         public int UserID { get; set; }
         public string Name { get; set; }
@@ -50,9 +50,24 @@ namespace CovidTracker.Code.Database
         public string AddressLine2 { get; set; }
         public string Suburb { get; set; }
         public string Postcode { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as User);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(UserID);
+        }
+
+        public bool Equals(User other)
+        {
+            return other.UserID == UserID;
+        }
     }
 
-    public class Signin
+    public class Signin : IEquatable<Signin>
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int SigninID { get; set; }
@@ -64,5 +79,20 @@ namespace CovidTracker.Code.Database
         public string AddressLine2 { get; set; }
         public string Suburb { get; set; }
         public string Postcode { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as Signin);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(SigninID);
+        }
+
+        public bool Equals(Signin other)
+        {
+            return other.SigninID == SigninID;
+        }
     }
 }
