@@ -56,7 +56,7 @@ namespace CovidTracker.Code.Database
 
                 // Create users.
                 int index = 0;
-                for(int i = 0; i < 100; i++) {
+                for(int i = 0; i < 1000; i++) {
                     string name = FirstNames[Rand.Next(0, FirstNames.Length)];
                     if(Rand.Next(0, 100) > 20) {
                         name += " " + MiddleNames[Rand.Next(0, MiddleNames.Length)];
@@ -78,14 +78,14 @@ namespace CovidTracker.Code.Database
                 }
                 await context.SaveChangesAsync();
 
-                for (int i = 0; i < 30; i++) {
+                for (int i = 0; i < 150; i++) {
                     string addressLine1 = AddressLine1s[Rand.Next(0, AddressLine1s.Length)];
                     string addressLine2 = AddressLine2s[Rand.Next(0, AddressLine2s.Length)];
                     string suburb = Suburbs[Rand.Next(0, Suburbs.Length)];
                     string postcode = Rand.Next(1000, 5000).ToString();
                     string phone = Rand.Next(1000000, 9999999).ToString();
 
-                    int amt = Rand.Next(1, 10);
+                    int amt = Rand.Next(1, 15);
                     for(int y = 0; y < amt; y++) {
                         Signin signin = new Signin() {
                             UserID = users[Rand.Next(0, users.Count-1)].UserID,
@@ -106,7 +106,7 @@ namespace CovidTracker.Code.Database
 
         public static DateTime RandomDateTime()
         {
-            DateTime start = new DateTime(1995, 1, 1);
+            DateTime start = new DateTime(2020, 1, 1);
             int range = (DateTime.Today - start).Days;
             return start.AddDays(Rand.Next(range));
         }

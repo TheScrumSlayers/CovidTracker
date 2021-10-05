@@ -16,11 +16,11 @@
         <!-- This is the people searching form. -->
         <h2>Search People</h2>
         <p>ID</p>
-        <input @bind="@peopleID" />
+        <input type="number" @bind="@peopleID" />
         <p>Name</p>
         <input @bind="@peopleName" />
         <p>Phone Number</p>
-        <input @bind="@peopePhoneNo" />
+        <input type="number" @bind="@peopePhoneNo" />
         <br />
         <button @onclick="@SearchPeople">Search</button>
 
@@ -67,7 +67,7 @@
         <input type="date" @bind="@reportAfterDate"/>
         <input type="time" @bind="@reportAfterTime"/>
         <p>Depth</p>
-        <input type="number" @bind="@reportNumber" />
+        <input type="number" @bind="@reportNumber" min="1" max="3" />
         <h3>Persons included</h3>
         <ul>
             @foreach (User user in usersToTrack) {
@@ -85,6 +85,7 @@
     case Page.ViewReport:
         <h2>Report:</h2>
 
+        <button @onclick="@BackClicked">Return to report generator</button>
         <table>
             <tr>
                 <th>User ID</th>
@@ -118,16 +119,14 @@
     public string peopleName;
     public string peopePhoneNo;
 
-    public DateTime reportBeforeDate;
+    public DateTime reportBeforeDate = new DateTime(2022, 1, 1);
     public DateTime reportBeforeTime;
-    public DateTime reportAfterDate;
+    public DateTime reportAfterDate = new DateTime(2019, 1, 1);
     public DateTime reportAfterTime;
-    public int reportNumber;
+    public int reportNumber = 1;
 
     public List<User> searchUsers = new List<User>();
-
     public List<User> usersToTrack = new List<User>();
-
     public List<User> generatedReport = new List<User>();
 
     [Parameter]
@@ -155,6 +154,13 @@
         if (!usersToTrack.Contains(user)) {
             usersToTrack.Add(user);
         }
+    }
+
+    public void BackClicked()
+    {
+        generatedReport.Clear();
+        CurrentPage = Page.EditReport;
+        StateHasChanged();
     }
 
     public async Task Submit()
