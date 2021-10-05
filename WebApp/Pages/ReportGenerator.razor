@@ -72,8 +72,10 @@
         <ul>
             @foreach (User user in usersToTrack) {
                 <li>ID: @user.UserID (@user.Name).</li>
+                <button @onclick="() => UntrackUser(user)">Remove</button>
             }
         </ul>
+        <button @onclick="@ClearTracked">Clear</button><br />
 
         <button @onclick="@Submit">Generate</button>
         break;
@@ -155,6 +157,16 @@
         }
     }
 
+    public void UntrackUser(User user)
+    {
+        usersToTrack.Remove(user);
+    }
+
+    public void ClearTracked()
+    {
+        usersToTrack.Clear();
+    }
+
     public void BackClicked()
     {
         generatedReport.Clear();
@@ -175,6 +187,7 @@
 
         IOReturn<List<User>> ret = await DatabaseHelper.GenerateReport(usersToTrack, reportNumber, before, after);
         generatedReport = ret.Value;
+        usersToTrack.Clear();
 
         CurrentPage = Page.ViewReport;
         await Task.Delay(1);
