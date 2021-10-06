@@ -122,22 +122,24 @@
             </tr>
         </table>
 
-        <h3 style="padding-top: 20px; padding-bottom: 10px">Persons included</h3>
-        <table>
-            @foreach (User user in usersToTrack) {
-            <tr>
-                <td><p style="width: 300px">ID: @user.UserID (@user.Name).</p></td>
-                <td><button @onclick="() => UntrackUser(user)">Remove</button></td>
-            </tr>
-            }
-        </table>
+        @if(usersToTrack.Count > 0) {
+            <h3 style="padding-top: 20px; padding-bottom: 10px">Persons included</h3>
+            <table>
+                @foreach (User user in usersToTrack) {
+                <tr>
+                    <td><p style="width: 300px">ID: @user.UserID (@user.Name).</p></td>
+                    <td><button @onclick="() => UntrackUser(user)">Remove</button></td>
+                </tr>
+                }
+            </table>
 
-        <table>
-            <tr>
-                <td><button @onclick="@ClearTracked">Clear</button></td>
-                <td><button @onclick="@Submit">Generate</button></td>
-            </tr>
-        </table>
+            <table>
+                <tr>
+                    <td><button @onclick="@ClearTracked">Clear</button></td>
+                    <td><button @onclick="@Submit">Generate</button></td>
+                </tr>
+            </table>
+        }
 
         break;
 
@@ -163,13 +165,13 @@
 
         @foreach(User user in generatedReport) { 
             <tr>
-                <th class="report">@user.UserID</th>
-                <th class="report">@user.Name</th>
-                <th class="report">@user.PhoneNo</th>
-                <th class="report">@user.AddressLine1</th>
-                <th class="report">@user.AddressLine2</th>
-                <th class="report">@user.Suburb</th>
-                <th class="report">@user.Postcode</th>
+                <td class="report">@user.UserID</td>
+                <td class="report">@user.Name</td>
+                <td class="report">@user.PhoneNo</td>
+                <td class="report">@user.AddressLine1</td>
+                <td class="report">@user.AddressLine2</td>
+                <td class="report">@user.Suburb</td>
+                <td class="report">@user.Postcode</td>
             </tr>
         }
 
