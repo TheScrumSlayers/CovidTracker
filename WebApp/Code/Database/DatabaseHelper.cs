@@ -13,8 +13,13 @@ namespace CovidTracker.Code.Database
     /// </summary>
     public static class DatabaseHelper
     {
-        public static async Task<IOReturn<List<User>>> GenerateReport(List<User> users, int depth, DateTime beforeDate, DateTime afterDate)
+        public static async Task<IOReturn<List<User>>> GenerateReport(byte[] password, List<User> users, int depth, DateTime beforeDate, DateTime afterDate)
         {
+            FileIO.ReadBytes(FileIO.StorageDirectory + "\\Passwords\\Password.txt");
+            if (!await VerifyPassword(password)) {
+                return new IOReturn<List<User>>(IOReturnStatus.Fail, null, new Exception("Authentication failed."));
+            }
+
             HashSet<User> reportUsers = new HashSet<User>();
             using (IServiceScope scope = Program.AppHost.Services.CreateScope()) {
                 IServiceProvider services = scope.ServiceProvider;
@@ -70,8 +75,12 @@ namespace CovidTracker.Code.Database
             return new IOReturn<HashSet<User>>(IOReturnStatus.Success, reportUsers);
         }
 
-        public static async Task<IOReturn<List<User>>> SearchUsers(int? id, string name, ulong? phoneNo)
+        public static async Task<IOReturn<List<User>>> SearchUsers(byte[] password, int? id, string name, ulong? phoneNo)
         {
+            if (!await VerifyPassword(password)) {
+                return new IOReturn<List<User>>(IOReturnStatus.Fail, null, new Exception("Authentication failed."));
+            }
+
             using (IServiceScope scope = Program.AppHost.Services.CreateScope()) {
                 IServiceProvider services = scope.ServiceProvider;
                 DatabaseContext context = services.GetRequiredService<DatabaseContext>();
@@ -91,27 +100,13 @@ namespace CovidTracker.Code.Database
             }
         }
 
-        public static async Task<IOReturn<List<Signin>>> SearchSignins(string userID, string addressLine1, string addressLine2)
+        public static async Task<bool> VerifyPassword(byte[] password)
         {
-            using (IServiceScope scope = Program.AppHost.Services.CreateScope()) {
-                IServiceProvider services = scope.ServiceProvider;
-                DatabaseContext context = services.GetRequiredService<DatabaseContext>();
-
-                IEnumerable<Signin> signin = context.Signins;
-                if (!string.IsNullOrEmpty(userID)) {
-                    if(int.TryParse(userID, out int id)) {
-                        signin = signin.Where(s => s.UserID == id);
-                    }
-                }
-                if (!string.IsNullOrEmpty(addressLine1)) {
-                    signin = signin.Where(s => s.AddressLine1 == addressLine1);
-                }
-                if (!string.IsNullOrEmpty(addressLine1)) {
-                    signin = signin.Where(s => s.AddressLine2 == addressLine2);
-                }
-
-                return new IOReturn<List<Signin>>(IOReturnStatus.Success, signin.ToList());
+            IOReturn<byte[]> ret = await Task.Run(() => FileIO.ReadBytes(FileIO.StorageDirectory + "\\Passwords\\Password.txt"));
+            if(ret.Status == IOReturnStatus.Fail) {
+                return false;
             }
+            return password.SequenceEqual(ret.Value);
         }
 
         /// <summary>

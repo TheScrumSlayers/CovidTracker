@@ -1,4 +1,5 @@
 ﻿@page "/Report"
+@using System.IO;
 @using System.Net
 @using CovidTracker.Code
 @using CovidTracker.Code.Database;
@@ -9,9 +10,26 @@
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
 
 @switch(CurrentPage) {
-    case Page.EditReport:
+    case Page.Authenticate:
+        <h1>Report Generator - Authentication</h1>
 
-        <h1>Report Generator</h1>
+        @switch(AuthState) {
+            case AuthenticateState.Idle:
+                <p>Please upload your authentication key.</p>
+                <InputFile OnChange="@SingleUpload"/>
+
+                @if(AuthFail) { 
+                    <br /><p style="color:red">Failed to authenticate.</p>
+                }
+                break;
+
+            case AuthenticateState.Authenticating:
+                <p>Authenticating...</p>
+                break;
+        }
+        break;
+
+    case Page.EditReport:
 
         <!-- This is the people searching form. -->
         <h2>Search People</h2>
@@ -132,10 +150,18 @@
     public List<User> generatedReport = new List<User>();
 
     [Parameter]
-    public Page CurrentPage { get; set; } = Page.EditReport;
+    public Page CurrentPage { get; set; } = Page.Authenticate;
 
     [Parameter]
     public bool FetchingUsers { get; set; } = false;
+
+    [Parameter]
+    public AuthenticateState AuthState { get; set; } = AuthenticateState.Idle;
+
+    [Parameter]
+    public bool AuthFail { get; set; } = false;
+
+    private byte[] passwordMemory;
 
     public async Task SearchPeople()
     {
@@ -143,7 +169,7 @@
         FetchingUsers = true;
         await Task.Delay(1);
 
-        IOReturn<List<User>> user = await DatabaseHelper.SearchUsers(peopleID, peopleName, peopePhoneNo);
+        IOReturn<List<User>> user = await DatabaseHelper.SearchUsers(passwordMemory, peopleID, peopleName, peopePhoneNo);
         searchUsers = user.Value;
 
         FetchingUsers = false;
@@ -185,7 +211,7 @@
         // Task.Delay updates the UI due to await.
         await Task.Delay(1);
 
-        IOReturn<List<User>> ret = await DatabaseHelper.GenerateReport(usersToTrack, reportNumber, before, after);
+        IOReturn<List<User>> ret = await DatabaseHelper.GenerateReport(passwordMemory, usersToTrack, reportNumber, before, after);
         generatedReport = ret.Value;
         usersToTrack.Clear();
 
@@ -193,10 +219,34 @@
         await Task.Delay(1);
     }
 
+    private async Task SingleUpload(InputFileChangeEventArgs e)
+    {
+        AuthState = AuthenticateState.Authenticating;
+        
+        MemoryStream stream = new MemoryStream();
+        await e.File.OpenReadStream().CopyToAsync(stream);
+        passwordMemory = stream.ToArray();
+
+        AuthFail = !await DatabaseHelper.VerifyPassword(passwordMemory);
+        AuthState = AuthenticateState.Idle;
+
+        if(!AuthFail) {
+            CurrentPage = Page.EditReport;
+        }
+        await Task.Delay(1);
+    }
+
     public enum Page
     {
+        Authenticate,
         EditReport,
         Loading,
         ViewReport
+    }
+
+    public enum AuthenticateState
+    {
+        Idle,
+        Authenticating
     }
 }

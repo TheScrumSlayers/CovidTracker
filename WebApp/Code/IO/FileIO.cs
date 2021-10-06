@@ -163,6 +163,39 @@ namespace CovidTracker.Code.IO
         }
 
         /// <summary>
+        /// Reads a string from a file at a given path.
+        /// </summary>
+        /// <param name="path">Path to file.</param>
+        /// <returns>IOReturn object representing the status of the operation. Contains the string if successful.</returns>
+        public static IOReturn<byte[]> ReadBytes(string path)
+        {
+            FileStream fileStream = null;
+            BinaryReader streamReader = null;
+            Exception except = null;
+            byte[] bytes = null;
+            try {
+                FileInfo fi = new FileInfo(path);
+                if (!fi.Exists)
+                    throw new FileNotFoundException();
+
+               bytes = File.ReadAllBytes(path);
+            }
+            catch (Exception e) {
+                except = e;
+            } finally {
+                if (streamReader == null) {
+                    fileStream?.Close();
+                } else {
+                    streamReader?.Close();
+                }
+            }
+
+            return except != null
+                ? new IOReturn<byte[]>(IOReturnStatus.Fail, bytes, except)
+                : new IOReturn<byte[]>(IOReturnStatus.Success, bytes);
+        }
+
+        /// <summary>
         /// Reads and deserializes a json file at a given path.
         /// </summary>
         /// <typeparam name="T">Type to deserialize as.</typeparam>
