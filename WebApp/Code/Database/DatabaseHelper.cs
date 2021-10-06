@@ -21,7 +21,7 @@ namespace CovidTracker.Code.Database
                 DatabaseContext context = services.GetRequiredService<DatabaseContext>();
 
                 foreach (User user in users) {                    
-                    IOReturn<HashSet<User>> ret = await GetContactedUsers(scope, user, depth, beforeDate, afterDate);
+                    IOReturn<HashSet<User>> ret = await GetContactedUsers(context, user, depth, beforeDate, afterDate);
                     HashSet<User> tmp = ret.Value;
                     reportUsers.AddRange(tmp);
                 }
@@ -30,25 +30,24 @@ namespace CovidTracker.Code.Database
             return new IOReturn<List<User>>(IOReturnStatus.Success, reportUsers.ToList());
         }
 
-        private static async Task<IOReturn<HashSet<User>>> GetContactedUsers(IServiceScope scope, User user, int depth, DateTime beforeDate, DateTime afterDate)
+        private static async Task<IOReturn<HashSet<User>>> GetContactedUsers(DatabaseContext context, User user, int depth, DateTime beforeDate, DateTime afterDate)
         {
             HashSet<User> reportUsers = new HashSet<User>();
-            IServiceProvider services = scope.ServiceProvider;
-            DatabaseContext context = services.GetRequiredService<DatabaseContext>();
+
+            // Add the exposed user.
+            User reported = user;
+            reportUsers.Add(reported);
 
             // Iterate over the locations where the person has visited.
-            List<Signin> signins = context.Signins.Where(s => s.UserID == user.UserID && s.Time <= beforeDate && s.Time >= afterDate).ToList();
-            foreach(Signin signin in signins) {
-                string adrLine1 = signin.AddressLine1;
-                string adrLine2 = signin.AddressLine2;
-                string suburb = signin.Suburb;
-                string code = signin.Postcode;
+            if (depth > 0) {
+                List<Signin> signins = context.Signins.Where(s => s.UserID == user.UserID && s.Time <= beforeDate && s.Time >= afterDate).ToList();
+                foreach(Signin signin in signins) {
+                    string adrLine1 = signin.AddressLine1;
+                    string adrLine2 = signin.AddressLine2;
+                    string suburb = signin.Suburb;
+                    string code = signin.Postcode;
 
-                User reported = user;
-                reportUsers.Add(reported);
-
-                // If depth is still > 0, iterate over each location recursively.
-                if (depth > 0) {
+                    // If depth is still > 0, iterate over each location recursively.
                     List<Signin> signinsContact = context.Signins.Where(
                         s => s.AddressLine1 == adrLine1
                         && s.AddressLine2 == adrLine2
@@ -62,7 +61,7 @@ namespace CovidTracker.Code.Database
                         User contactUser = context.Users.Where(u => u.UserID == contact.UserID).FirstOrDefault();
                         reportUsers.Add(contactUser);
 
-                        IOReturn<HashSet<User>> ret = await GetContactedUsers(scope, contactUser, depth - 1, beforeDate, afterDate);
+                        IOReturn<HashSet<User>> ret = await GetContactedUsers(context, contactUser, depth - 1, beforeDate, afterDate);
                         HashSet<User> tmp = ret.Value;
                         reportUsers.AddRange(tmp);
                     }
