@@ -22,7 +22,7 @@ namespace CovidTracker.Code.Database
         /// <param name="beforeDate">Before date.</param>
         /// <param name="afterDate">After date.</param>
         /// <returns>List of users who likely came into contact with any of the contacted users.</returns>
-        public static async Task<IOReturn<List<User>>> GenerateReport(byte[] password, List<User> users, int depth, DateTime beforeDate, DateTime afterDate)
+        public static async Task<IOReturn<List<User>>> GenerateReport(byte[] password, HashSet<User> users, int depth, DateTime beforeDate, DateTime afterDate)
         {
             FileIO.ReadBytes(FileIO.StorageDirectory + "\\Passwords\\Password.txt");
             if (!await VerifyPassword(password)) {

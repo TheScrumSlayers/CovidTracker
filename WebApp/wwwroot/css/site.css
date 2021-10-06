@@ -54,3 +54,46 @@ a, .btn-link {
     max-width: 65%;
     height: 750px;
 }
+
+th.report, td.report {
+    padding: 10px;
+    border-bottom: 2px solid #006fb0;
+}
+
+tr.selectable:hover {
+    background-color: #9ac6e0;
+}
+
+tr.selected {
+    background-color: #fffaa5;
+}
+
+tr.selected:hover {
+    background-color: #9f9ae0;
+}
+
+.fields {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.field {
+    text-align: center;
+    padding: 5px;
+    margin: auto;
+}
+
+tr, td, th {
+    border: 0;
+    padding: 5px;
+}
+
+h1.report, h2.report, h3.report {
+    padding-top: 30px;
+}
+
+td p {
+    display: inline;
+}

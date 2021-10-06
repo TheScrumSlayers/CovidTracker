@@ -13,10 +13,24 @@
     <link href="~/css/ReportSpecific.css" rel="stylesheet" />
 </head>
 
+<div class="text-center py-3" style="border-bottom: 2px solid #0e4785;">
+    <div class="row flex-nowrap justify-content-between align-items-center">
+        <div class="col-4 text-center">
+            <a class="blog-header-logo text-dark" href="#">
+                <img src="logo.png" style="width:80%">
+            </a>
+        </div><div class="col-4 pt-1"><h2>COVID SAFE SYSTEM</h2></div>
+
+        <div class="col-4 d-flex justify-content-end align-items-center">
+            <a class="btn btn-sm btn-outline-secondary" href="#">Welcome</a>
+        </div>
+    </div>
+</div>
+
 @switch(CurrentPage) {
     case Page.Authenticate:
         <!-- This is authentication page shown when first entering the page. -->
-        <h1>Report Generator - Authentication</h1>
+        <h1 class="report">Report Generator - Authentication</h1>
 
         @switch(AuthState) {
             case AuthenticateState.Idle:
@@ -37,14 +51,17 @@
     case Page.EditReport:
 
         <!-- This is the people searching form. -->
-        <h2>Search People</h2>
-        <p>ID</p>
-        <input type="number" @bind="@peopleID" />
-        <p>Name</p>
-        <input @bind="@peopleName" />
-        <p>Phone Number</p>
-        <input type="number" @bind="@peopePhoneNo" />
-        <br />
+        <h2 class="report">Search People</h2>
+        <div class="fields" style="max-width: 900px">
+            <p class="field">ID</p>
+            <input class="field" type="number" @bind="@peopleID" />
+            <p class="field">Name</p>
+            <input class="field" @bind="@peopleName" />
+            <p class="field">Phone Number</p>
+            <input class="field" type="number" @bind="@peopePhoneNo" />
+            <br />
+        </div>
+
         <button @onclick="@SearchPeople">Search</button>
 
         <!-- This is a table of users which is returned from the people searching form.
@@ -60,25 +77,24 @@
                 <table>
 
                 <tr>
-                    <th>User ID</th>
-                    <th>Name</th>
-                    <th>Phone</th>
-                    <th>Address Line 1</th>
-                    <th>Address Line 2</th>
-                    <th>Suburb</th>
-                    <th>Postcode</th>
+                    <th class="report">User ID</th>
+                    <th class="report">Name</th>
+                    <th class="report">Phone</th>
+                    <th class="report">Address Line 1</th>
+                    <th class="report">Address Line 2</th>
+                    <th class="report">Suburb</th>
+                    <th class="report">Postcode</th>
                 </tr>
 
                     @foreach (User user in searchUsers) {
-                        <tr>
-                            <th>@user.UserID</th>
-                            <th>@user.Name</th>
-                            <th>@user.AddressLine1</th>
-                            <th>@user.AddressLine2</th>
-                            <th>@user.Suburb</th>
-                            <th>@user.Postcode</th>
-                            <th>@user.PhoneNo</th>
-                            <button @onclick="() => TrackUser(user)">Track</button>
+                        <tr class="@((usersToTrack.Contains(user) ? "selectable selected" : "selectable"))" @onclick="() => TrackUser(user)">
+                            <td class="report">@user.UserID</td>
+                            <td class="report">@user.Name</td>
+                            <td class="report">@user.AddressLine1</td>
+                            <td class="report">@user.AddressLine2</td>
+                            <td class="report">@user.Suburb</td>
+                            <td class="report">@user.Postcode</td>
+                            <td class="report">@user.PhoneNo</td>
                         </tr>
                     }
 
@@ -87,25 +103,42 @@
         }
 
         <!-- Report generation attributes. -->
-        <h2>Generate Report:</h2>
-        <p>Before</p>
-        <input type="date" @bind="@reportBeforeDate"/>
-        <input type="time" @bind="@reportBeforeTime"/>
-        <p>After</p>
-        <input type="date" @bind="@reportAfterDate"/>
-        <input type="time" @bind="@reportAfterTime"/>
-        <p>Depth</p>
-        <input type="number" @bind="@reportNumber" min="1" max="3" />
-        <h3>Persons included</h3>
-        <ul>
-            @foreach (User user in usersToTrack) {
-                <li>ID: @user.UserID (@user.Name).</li>
-                <button @onclick="() => UntrackUser(user)">Remove</button>
-            }
-        </ul>
-        <button @onclick="@ClearTracked">Clear</button><br />
+        <h2 style="padding-top: 20px; padding-bottom: 10px">Report Options:</h2>
 
-        <button @onclick="@Submit">Generate</button>
+        <table>
+            <tr>
+                <td><p>Before:</p></td>
+                <td><input type="date" @bind="@reportBeforeDate" /></td>
+                <td><input type="time" @bind="@reportBeforeTime" /></td>
+            </tr>
+            <tr>
+                <td><p>After:</p></td>
+                <td><input type="date" @bind="@reportAfterDate" /></td>
+                <td><input type="time" @bind="@reportAfterTime" /></td>
+            </tr>
+            <tr>
+                <td><p>Depth:</p></td>
+                <td><input style="width:120px" type="number" @bind="@reportNumber" min="1" max="3" /></td>
+            </tr>
+        </table>
+
+        <h3 style="padding-top: 20px; padding-bottom: 10px">Persons included</h3>
+        <table>
+            @foreach (User user in usersToTrack) {
+            <tr>
+                <td><p style="width: 300px">ID: @user.UserID (@user.Name).</p></td>
+                <td><button @onclick="() => UntrackUser(user)">Remove</button></td>
+            </tr>
+            }
+        </table>
+
+        <table>
+            <tr>
+                <td><button @onclick="@ClearTracked">Clear</button></td>
+                <td><button @onclick="@Submit">Generate</button></td>
+            </tr>
+        </table>
+
         break;
 
     case Page.Loading:
@@ -114,29 +147,29 @@
 
     case Page.ViewReport:
         <!-- This is a human-readable report of contacted people. -->
-        <h2>Report:</h2>
+        <h2 class="report">Report (@generatedReport.Count results)</h2>
 
         <button @onclick="@BackClicked">Return to report generator</button>
         <table>
             <tr>
-                <th>User ID</th>
-                <th>Name</th>
-                <th>Phone</th>
-                <th>Address Line 1</th>
-                <th>Address Line 2</th>
-                <th>Suburb</th>
-                <th>Postcode</th>
+                <th class="report">User ID</th>
+                <th class="report">Name</th>
+                <th class="report">Phone</th>
+                <th class="report">Address Line 1</th>
+                <th class="report">Address Line 2</th>
+                <th class="report">Suburb</th>
+                <th class="report">Postcode</th>
             </tr>
 
         @foreach(User user in generatedReport) { 
             <tr>
-                <th>@user.UserID</th>
-                <th>@user.Name</th>
-                <th>@user.PhoneNo</th>
-                <th>@user.AddressLine1</th>
-                <th>@user.AddressLine2</th>
-                <th>@user.Suburb</th>
-                <th>@user.Postcode</th>
+                <th class="report">@user.UserID</th>
+                <th class="report">@user.Name</th>
+                <th class="report">@user.PhoneNo</th>
+                <th class="report">@user.AddressLine1</th>
+                <th class="report">@user.AddressLine2</th>
+                <th class="report">@user.Suburb</th>
+                <th class="report">@user.Postcode</th>
             </tr>
         }
 
@@ -157,7 +190,7 @@
     public int reportNumber = 1;
 
     public List<User> searchUsers = new List<User>();
-    public List<User> usersToTrack = new List<User>();
+    public HashSet<User> usersToTrack = new HashSet<User>();
     public List<User> generatedReport = new List<User>();
 
     [Parameter]
@@ -189,7 +222,9 @@
 
     public void TrackUser(User user)
     {
-        if (!usersToTrack.Contains(user)) {
+        if (usersToTrack.Contains(user)) {
+            usersToTrack.Remove(user);
+        } else {
             usersToTrack.Add(user);
         }
     }
