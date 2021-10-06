@@ -13,6 +13,15 @@ namespace CovidTracker.Code.Database
     /// </summary>
     public static class DatabaseHelper
     {
+        /// <summary>
+        /// Queries the database for contacted / at-risk persons. Requires authentication, as it's accessed by the frontend.
+        /// </summary>
+        /// <param name="password">Authentication password.</param>
+        /// <param name="users">List of contacted users.</param>
+        /// <param name="depth">Amount of people to recursively include.</param>
+        /// <param name="beforeDate">Before date.</param>
+        /// <param name="afterDate">After date.</param>
+        /// <returns>List of users who likely came into contact with any of the contacted users.</returns>
         public static async Task<IOReturn<List<User>>> GenerateReport(byte[] password, List<User> users, int depth, DateTime beforeDate, DateTime afterDate)
         {
             FileIO.ReadBytes(FileIO.StorageDirectory + "\\Passwords\\Password.txt");
@@ -35,6 +44,15 @@ namespace CovidTracker.Code.Database
             return new IOReturn<List<User>>(IOReturnStatus.Success, reportUsers.ToList());
         }
 
+        /// <summary>
+        /// Queries the database for contacted / at-risk persons.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="user"></param>
+        /// <param name="depth"></param>
+        /// <param name="beforeDate"></param>
+        /// <param name="afterDate"></param>
+        /// <returns></returns>
         private static async Task<IOReturn<HashSet<User>>> GetContactedUsers(DatabaseContext context, User user, int depth, DateTime beforeDate, DateTime afterDate)
         {
             HashSet<User> reportUsers = new HashSet<User>();
@@ -75,6 +93,14 @@ namespace CovidTracker.Code.Database
             return new IOReturn<HashSet<User>>(IOReturnStatus.Success, reportUsers);
         }
 
+        /// <summary>
+        /// Searches the users with several filters. Requires authentication as this is used by the frontend.
+        /// </summary>
+        /// <param name="password">Authentication password.</param>
+        /// <param name="id">User ID, optional.</param>
+        /// <param name="name">Name, optional.</param>
+        /// <param name="phoneNo">Phone number, optional.</param>
+        /// <returns>List of users matching the criteria.</returns>
         public static async Task<IOReturn<List<User>>> SearchUsers(byte[] password, int? id, string name, ulong? phoneNo)
         {
             if (!await VerifyPassword(password)) {
@@ -100,6 +126,11 @@ namespace CovidTracker.Code.Database
             }
         }
 
+        /// <summary>
+        /// Verifies a password formatted as a byte array.
+        /// </summary>
+        /// <param name="password">Password.</param>
+        /// <returns>True if the password matches one on the server.</returns>
         public static async Task<bool> VerifyPassword(byte[] password)
         {
             IOReturn<byte[]> ret = await Task.Run(() => FileIO.ReadBytes(FileIO.StorageDirectory + "\\Passwords\\Password.txt"));
@@ -179,6 +210,11 @@ namespace CovidTracker.Code.Database
             }
         }
 
+        /// <summary>
+        /// Retrieves a user from the local, non-client database.
+        /// </summary>
+        /// <param name="userID">User ID.</param>
+        /// <returns>User from the local database if they exist.</returns>
         public static async Task<IOReturn<User>> RetrieveLocallyStoredUser(int userID)
         {
             using (IServiceScope scope = Program.AppHost.Services.CreateScope()) {

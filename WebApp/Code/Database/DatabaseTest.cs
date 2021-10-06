@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 namespace CovidTracker.Code.Database
 {
+    /// <summary>
+    /// The class initializes a bunch of mockup data for the system. It is not included in the release build.
+    /// </summary>
     public static class DatabaseTest
     {
         public static Random Rand = new Random();

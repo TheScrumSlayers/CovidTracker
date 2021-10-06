@@ -9,8 +9,13 @@
 @inject NavigationManager Navigator
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
 
+<head>
+    <link href="~/css/ReportSpecific.css" rel="stylesheet" />
+</head>
+
 @switch(CurrentPage) {
     case Page.Authenticate:
+        <!-- This is authentication page shown when first entering the page. -->
         <h1>Report Generator - Authentication</h1>
 
         @switch(AuthState) {
@@ -50,33 +55,38 @@
         } else if (searchUsers.Count == 0) { 
             <p>Search results will appear here.</p>
         } else { 
-            <table>
 
-            <tr>
-                <th>User ID</th>
-                <th>Name</th>
-                <th>Phone</th>
-                <th>Address Line 1</th>
-                <th>Address Line 2</th>
-                <th>Suburb</th>
-                <th>Postcode</th>
-            </tr>
+            <div class="scrollView">
+                <table>
 
-            @foreach (User user in searchUsers) {
                 <tr>
-                    <th>@user.UserID</th>
-                    <th>@user.Name</th>
-                    <th>@user.AddressLine1</th>
-                    <th>@user.AddressLine2</th>
-                    <th>@user.Suburb</th>
-                    <th>@user.Postcode</th>
-                    <th>@user.PhoneNo</th>
-                    <button @onclick="() => TrackUser(user)">Track</button>
+                    <th>User ID</th>
+                    <th>Name</th>
+                    <th>Phone</th>
+                    <th>Address Line 1</th>
+                    <th>Address Line 2</th>
+                    <th>Suburb</th>
+                    <th>Postcode</th>
                 </tr>
-            }
-            </table>
+
+                    @foreach (User user in searchUsers) {
+                        <tr>
+                            <th>@user.UserID</th>
+                            <th>@user.Name</th>
+                            <th>@user.AddressLine1</th>
+                            <th>@user.AddressLine2</th>
+                            <th>@user.Suburb</th>
+                            <th>@user.Postcode</th>
+                            <th>@user.PhoneNo</th>
+                            <button @onclick="() => TrackUser(user)">Track</button>
+                        </tr>
+                    }
+
+                </table>
+            </div>
         }
 
+        <!-- Report generation attributes. -->
         <h2>Generate Report:</h2>
         <p>Before</p>
         <input type="date" @bind="@reportBeforeDate"/>
@@ -103,6 +113,7 @@
         break;
 
     case Page.ViewReport:
+        <!-- This is a human-readable report of contacted people. -->
         <h2>Report:</h2>
 
         <button @onclick="@BackClicked">Return to report generator</button>
