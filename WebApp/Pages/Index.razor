@@ -216,6 +216,11 @@
             await localStorage.SetItemAsync("Setup", "True");
             await localStorage.SetItemAsync("Info", TerminalInfo);
 
+#if DEBUG
+            // Generate example data if in debug mode.
+            await TestDataInit();
+#endif
+
             PendingSetupSubmission = false;
             CurrentPage = Page.Login;
             LoadState = PageState.Loaded;
@@ -228,6 +233,19 @@
         PendingSetupSubmission = true;
         StateHasChanged();
     }
+
+#if DEBUG
+    public async Task TestDataInit()
+    {
+        SigninPostData data = new SigninPostData {
+            UserID = "1111",
+            DateTime = DateTime.Now,
+            TerminalInfo = TerminalInfo
+        };
+
+        HttpResponseMessage msg = await AppClient.PostJsonAsync<SigninPostData>(@Navigator.BaseUri + "api/Login", data);
+    }
+#endif
 
     public async void Post()
     {
